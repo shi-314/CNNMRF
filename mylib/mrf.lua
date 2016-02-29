@@ -149,7 +149,20 @@ function MRFMM:updateGradInput(input, gradOutput)
     self.nOutputPlane = i_end - i_start + 1
 
     -- local timer_CONV = torch.Timer()
-    local temp = input.nn.SpatialConvolutionMM_updateOutput(self, input)
+    -- local temp = input.nn.SpatialConvolutionMM_updateOutput(self, input)
+    local subBias = self.bias:sub(i_start, i_end)
+    input.THNN.SpatialConvolutionMM_updateOutput(
+      input:cdata(),
+      self.output:cdata(),
+      self.weight:cdata(),
+      subBias:cdata(),
+      self.finput:cdata(),
+      self.fgradInput:cdata(),
+      self.kW, self.kH,
+      self.dW, self.dH,
+      self.padW, self.padH
+    )
+    local temp = self.output
     -- t_conv = t_conv + timer_CONV:time().real
 
     -- normalize w.r.t source_mrfnorm
